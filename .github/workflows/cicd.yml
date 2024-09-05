@@ -187,10 +187,9 @@ jobs:
 
       - name: 🛠️ Build and push frontend Docker image
         run: |
-          docker build ./quiz-app -t ${{ secrets.DOCKER_USERNAME }}/frontend-js
+          docker build ./quiz-app -t ${{ secrets.DOCKER_USERNAME }}/frontend-js --file=quiz-app/Dockerfile
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_USERNAME }}/frontend-js
-          
 
       - name: 🔍 Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -209,7 +208,7 @@ jobs:
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
       - name: 🔍 Snyk Container monitor
-        run: snyk container monitor ${{ secrets.DOCKER_USERNAME }}/frontend-js --file=Dockerfile
+        run: snyk container monitor ${{ secrets.DOCKER_USERNAME }}/frontend-js --file=quiz-app/Dockerfile
 
       - name: 🔒 Run Snyk to check for vulnerabilities in the Docker image
         uses: snyk/actions/docker@master
@@ -233,10 +232,9 @@ jobs:
 
       - name: 🛠️ Build and push backend Docker image
         run: |
-          docker build ./backend -t ${{ secrets.DOCKER_USERNAME }}/backend-api
+          docker build ./backend -t ${{ secrets.DOCKER_USERNAME }}/backend-api --file=backend/Dockerfile
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_USERNAME }}/backend-api
-      
 
       - name: 🔍 Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -255,7 +253,7 @@ jobs:
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
       - name: 🔍 Snyk Container monitor
-        run: snyk container monitor ${{ secrets.DOCKER_USERNAME }}/backend-api --file=Dockerfile
+        run: snyk container monitor ${{ secrets.DOCKER_USERNAME }}/backend-api --file=backend/Dockerfile
 
       - name: 🔒 Run Snyk to check for vulnerabilities in the Docker image
         uses: snyk/actions/docker@master
@@ -277,3 +275,8 @@ jobs:
         uses: snyk/actions/iac@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: 🔍 Show detailed logs
+        run: |
+          cat /github/workspace/.github/workflows/*.yml
+          cat /github/workspace/kubernetes-manifest/*.yaml
