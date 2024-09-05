@@ -188,8 +188,9 @@ jobs:
       - name: 🛠️ Build and push frontend Docker image
         run: |
           docker build ./quiz-app -t ${{ secrets.DOCKER_USERNAME }}/frontend-js
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin 
-          docker push ${{ secrets.DOCKER_USERNAME }}/frontend-js    
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/frontend-js
+          
 
       - name: 🔍 Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -233,8 +234,9 @@ jobs:
       - name: 🛠️ Build and push backend Docker image
         run: |
           docker build ./backend -t ${{ secrets.DOCKER_USERNAME }}/backend-api
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin 
-          docker push ${{ secrets.DOCKER_USERNAME }}/backend-api    
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/backend-api
+      
 
       - name: 🔍 Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
