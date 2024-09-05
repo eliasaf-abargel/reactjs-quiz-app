@@ -2,244 +2,149 @@ module.exports = {
   data: [
     {
       question: "Who was King Ahab's wife?",
-      option1: "Ruth",
-      option2: "Mary",
-      option3: "Jezebel",
-      option4: "Rebecca",
-      ans: 3,
+      options: ["Ruth", "Mary", "Jezebel", "Rebecca"],
+      answer: 2, // Jezebel is the correct answer, indexed as 2 (0-based index)
     },
     {
       question: "Who led the Israelites into the Promised Land?",
-      option1: "Moses",
-      option2: "Joshua",
-      option3: "Abraham",
-      option4: "Isaac",
-      ans: 2,
+      options: ["Moses", "Joshua", "Abraham", "Isaac"],
+      answer: 1, // Joshua is the correct answer
     },
     {
       question: "Who was thrown into a lion's den?",
-      option1: "David",
-      option2: "Solomon",
-      option3: "Daniel",
-      option4: "Joseph",
-      ans: 3,
+      options: ["David", "Solomon", "Daniel", "Joseph"],
+      answer: 2, // Daniel is the correct answer
     },
     {
       question: "Who killed Goliath?",
-      option1: "Saul",
-      option2: "David",
-      option3: "Samson",
-      option4: "Jonathan",
-      ans: 2,
+      options: ["Saul", "David", "Samson", "Jonathan"],
+      answer: 1, // David is the correct answer
     },
     {
       question: "Who was sold into slavery by his brothers?",
-      option1: "Moses",
-      option2: "Aaron",
-      option3: "Joseph",
-      option4: "Simon",
-      ans: 3,
+      options: ["Moses", "Aaron", "Joseph", "Simon"],
+      answer: 2, // Joseph is the correct answer
     },
     {
       question: "Who was the first king of Israel?",
-      option1: "Saul",
-      option2: "David",
-      option3: "Solomon",
-      option4: "Samuel",
-      ans: 1,
+      options: ["Saul", "David", "Solomon", "Samuel"],
+      answer: 0, // Saul is the correct answer
     },
     {
       question: "Who interpreted dreams in Egypt?",
-      option1: "Joseph",
-      option2: "Daniel",
-      option3: "Moses",
-      option4: "Pharaoh",
-      ans: 1,
+      options: ["Joseph", "Daniel", "Moses", "Pharaoh"],
+      answer: 0, // Joseph is the correct answer
     },
     {
       question: "Who built the ark?",
-      option1: "Noah",
-      option2: "Moses",
-      option3: "Abraham",
-      option4: "Jacob",
-      ans: 1,
+      options: ["Noah", "Moses", "Abraham", "Jacob"],
+      answer: 0, // Noah is the correct answer
     },
     {
       question: "Who was swallowed by a great fish?",
-      option1: "Jonah",
-      option2: "Peter",
-      option3: "James",
-      option4: "John",
-      ans: 1,
+      options: ["Jonah", "Peter", "James", "John"],
+      answer: 0, // Jonah is the correct answer
     },
     {
       question: "Who was the strongest man in the Bible?",
-      option1: "Goliath",
-      option2: "Samson",
-      option3: "David",
-      option4: "Saul",
-      ans: 2,
+      options: ["Goliath", "Samson", "David", "Saul"],
+      answer: 1, // Samson is the correct answer
     },
     {
       question: "Who was the first man created?",
-      option1: "Adam",
-      option2: "Eve",
-      option3: "Cain",
-      option4: "Abel",
-      ans: 1,
+      options: ["Adam", "Eve", "Cain", "Abel"],
+      answer: 0, // Adam is the correct answer
     },
     {
       question: "Who was known for his wisdom?",
-      option1: "David",
-      option2: "Solomon",
-      option3: "Samuel",
-      option4: "Saul",
-      ans: 2,
+      options: ["David", "Solomon", "Samuel", "Saul"],
+      answer: 1, // Solomon is the correct answer
     },
     {
       question: "Who built the temple in Jerusalem?",
-      option1: "David",
-      option2: "Solomon",
-      option3: "Rehoboam",
-      option4: "Hezekiah",
-      ans: 2,
+      options: ["David", "Solomon", "Rehoboam", "Hezekiah"],
+      answer: 1, // Solomon is the correct answer
     },
     {
-      question:
-        "Who was the prophet that confronted King David about his sin with Bathsheba?",
-      option1: "Nathan",
-      option2: "Elijah",
-      option3: "Elisha",
-      option4: "Samuel",
-      ans: 1,
+      question: "Who was the prophet that confronted King David about his sin with Bathsheba?",
+      options: ["Nathan", "Elijah", "Elisha", "Samuel"],
+      answer: 0, // Nathan is the correct answer
     },
     {
       question: "Who was the oldest man in the Bible?",
-      option1: "Noah",
-      option2: "Methuselah",
-      option3: "Adam",
-      option4: "Seth",
-      ans: 2,
+      options: ["Noah", "Methuselah", "Adam", "Seth"],
+      answer: 1, // Methuselah is the correct answer
     },
     {
       question: "Who was turned into a pillar of salt?",
-      option1: "Lot's wife",
-      option2: "Sarah",
-      option3: "Rebekah",
-      option4: "Rachel",
-      ans: 1,
+      options: ["Lot's wife", "Sarah", "Rebekah", "Rachel"],
+      answer: 0, // Lot's wife is the correct answer
     },
     {
       question: "Who was the father of many nations?",
-      option1: "Isaac",
-      option2: "Jacob",
-      option3: "Abraham",
-      option4: "Joseph",
-      ans: 3,
+      options: ["Isaac", "Jacob", "Abraham", "Joseph"],
+      answer: 2, // Abraham is the correct answer
     },
     {
       question: "Who wrestled with an angel?",
-      option1: "Jacob",
-      option2: "Esau",
-      option3: "Isaac",
-      option4: "Abraham",
-      ans: 1,
-    },
-    {
-      question: "Who replaced Judas as the twelfth apostle?",
-      option1: "Matthias",
-      option2: "Barnabas",
-      option3: "Timothy",
-      option4: "Silas",
-      ans: 1,
+      options: ["Jacob", "Esau", "Isaac", "Abraham"],
+      answer: 0, // Jacob is the correct answer
     },
     {
       question: "Who was known as the weeping prophet?",
-      option1: "Isaiah",
-      option2: "Jeremiah",
-      option3: "Ezekiel",
-      option4: "Daniel",
-      ans: 2,
-    },
-    {
-      question: "Who interpreted Nebuchadnezzar's dream?",
-      option1: "Daniel",
-      option2: "Joseph",
-      option3: "Ezekiel",
-      option4: "Jeremiah",
-      ans: 1,
+      options: ["Isaiah", "Jeremiah", "Ezekiel", "Daniel"],
+      answer: 1, // Jeremiah is the correct answer
     },
     {
       question: "Who was the queen of Persia who saved her people?",
-      option1: "Vashti",
-      option2: "Esther",
-      option3: "Ruth",
-      option4: "Deborah",
-      ans: 2,
-    },
-    {
-      question: "Who was the father of John the Baptist?",
-      option1: "Zacharias",
-      option2: "Elizabeth",
-      option3: "Aaron",
-      option4: "Simon",
-      ans: 1,
-    },
-    {
-      question: "Who was the prophet that was fed by ravens?",
-      option1: "Elijah",
-      option2: "Elisha",
-      option3: "Isaiah",
-      option4: "Jeremiah",
-      ans: 1,
-    },
-    {
-      question: "Who was the woman at the well Jesus spoke to?",
-      option1: "Samaritan woman",
-      option2: "Syrophoenician woman",
-      option3: "Canaanite woman",
-      option4: "Phoenician woman",
-      ans: 1,
-    },
-    {
-      question: "Who was the disciple who replaced Judas Iscariot?",
-      option1: "Matthias",
-      option2: "Bartholomew",
-      option3: "Thaddaeus",
-      option4: "Philip",
-      ans: 1,
+      options: ["Vashti", "Esther", "Ruth", "Deborah"],
+      answer: 1, // Esther is the correct answer
     },
     {
       question: "Who was the father of Isaac?",
-      option1: "Abraham",
-      option2: "Lot",
-      option3: "Nahor",
-      option4: "Terah",
-      ans: 1,
+      options: ["Abraham", "Lot", "Nahor", "Terah"],
+      answer: 0, // Abraham is the correct answer
     },
     {
       question: "Who was the king of Babylon who saw the writing on the wall?",
-      option1: "Nebuchadnezzar",
-      option2: "Belshazzar",
-      option3: "Darius",
-      option4: "Cyrus",
-      ans: 2,
+      options: ["Nebuchadnezzar", "Belshazzar", "Darius", "Cyrus"],
+      answer: 1, // Belshazzar is the correct answer
     },
     {
       question: "Who was the woman who hid the spies in Jericho?",
-      option1: "Rahab",
-      option2: "Deborah",
-      option3: "Jael",
-      option4: "Esther",
-      ans: 1,
+      options: ["Rahab", "Deborah", "Jael", "Esther"],
+      answer: 0, // Rahab is the correct answer
     },
     {
       question: "Who was the prophet who anointed Saul as king?",
-      option1: "Samuel",
-      option2: "Nathan",
-      option3: "Elijah",
-      option4: "Elisha",
-      ans: 1,
+      options: ["Samuel", "Nathan", "Elijah", "Elisha"],
+      answer: 0, // Samuel is the correct answer
+    },
+    // Additional questions on the Jewish Tanakh (Hebrew Bible)
+    {
+      question: "Who led the Israelites out of Egypt?",
+      options: ["Abraham", "Isaac", "Moses", "Joshua"],
+      answer: 2, // Moses is the correct answer
+    },
+    {
+      question: "What was the name of the mountain where Moses received the Ten Commandments?",
+      options: ["Mount Sinai", "Mount Zion", "Mount Carmel", "Mount Ararat"],
+      answer: 0, // Mount Sinai is the correct answer
+    },
+    {
+      question: "Who was the first judge of Israel?",
+      options: ["Samson", "Deborah", "Othniel", "Gideon"],
+      answer: 2, // Othniel is the correct answer
+    },
+    {
+      question: "Who was the prophet that ascended to heaven in a chariot of fire?",
+      options: ["Elijah", "Elisha", "Isaiah", "Jeremiah"],
+      answer: 0, // Elijah is the correct answer
+    },
+    {
+      question: "What was the first plague that struck Egypt?",
+      options: ["Blood", "Frogs", "Locusts", "Darkness"],
+      answer: 0, // Blood is the correct answer
     },
   ],
 };
