@@ -275,7 +275,6 @@ jobs:
         uses: snyk/actions/iac@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      - name: 🔍 Show detailed logs
-        run: |
-          cat /github/workspace/kubernetes-manifest/*.yaml
+        with:
+          file: kubernetes-manifest/
+          args: --severity-threshold=high
