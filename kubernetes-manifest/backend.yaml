@@ -23,6 +23,7 @@ spec:
       containers:
       - name: backend
         image: eliasafabargel/backend-api:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         env:
@@ -32,13 +33,17 @@ spec:
               name: mongo-secret
               key: mongo-uri
         securityContext:
+          runAsNonRoot: true
           runAsUser: 10001
-          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         resources:
           limits:
             memory: "512Mi"
             cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
         livenessProbe:
           httpGet:
             path: /healthz
