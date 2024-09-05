@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // Import React and necessary hooks
+import { useState, useEffect } from "react"; // Import only the necessary hooks
 import Quiz from "./Components/Quiz/Quiz";
 import "./Quiz.css"; // Import only Quiz-related styles
 
