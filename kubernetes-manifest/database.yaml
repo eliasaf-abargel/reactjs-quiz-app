@@ -18,44 +18,53 @@ spec:
       containers:
       - name: mongo
         image: mongo:4.4.6
-        imagePullPolicy: Always
         ports:
         - containerPort: 27017
         volumeMounts:
         - name: mongo-volume
           mountPath: /data/db
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 10001
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-            - ALL
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-        livenessProbe:
-          exec:
-            command:
-            - mongo
-            - --eval
-            - db.adminCommand('ping')
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          exec:
-            command:
-            - mongo
-            - --eval
-            - db.adminCommand('ping')
-          initialDelaySeconds: 5
-          periodSeconds: 10
       volumes:
       - name: mongo-volume
         persistentVolumeClaim:
           claimName: mongo-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+  namespace: quiz
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-pvc
+  namespace: quiz
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+  namespace: quiz
+spec:
+  selector:
+    app: mongo
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+  type: ClusterIP
