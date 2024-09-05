@@ -25,7 +25,7 @@ spec:
         image: eliasafabargel/frontend-js:latest
         env:
         - name: VITE_REACT_APP_API_URL
-          value: "https://quizapp.comax.co.il/api/questions"
+          value: "http://quizapp.binaiq.com/api/questions"
         ports:
         - containerPort: 8080
 ---

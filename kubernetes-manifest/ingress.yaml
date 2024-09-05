@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - host: quizapp.comax.co.il
+    - host: quizapp.binaiq.com
       http:
         paths:
           - path: /api/questions
