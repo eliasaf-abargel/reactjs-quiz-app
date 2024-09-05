@@ -1,0 +1,59 @@
+name: Deploy to ArgoCD
+
+needs: [frontend-image, backend-image]
+
+on:
+  workflow_run:
+    workflows: ["React.js CICD"]
+    types:
+      - completed
+
+jobs:
+  argocd-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛠️ Check-out git repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check DockerHub for changes
+        run: |
+          echo "🟢 Checking DockerHub for image changes..."
+          DOCKER_LATEST_TAG=$(docker pull ${{ secrets.DOCKER_USERNAME }}/frontend-js:latest | grep "Digest")
+          if [[ $DOCKER_LATEST_TAG == $(docker pull ${{ secrets.DOCKER_USERNAME }}/frontend-js | grep "Digest") ]]; then
+            echo "🔴 No changes detected in DockerHub for frontend."
+            exit 0
+          else
+            echo "🟢 Changes detected in DockerHub for frontend."
+          fi
+
+      - name: 🔍 Check DockerHub for backend image changes
+        run: |
+          echo "🟢 Checking DockerHub for backend image changes..."
+          DOCKER_LATEST_TAG=$(docker pull ${{ secrets.DOCKER_USERNAME }}/backend-api:latest | grep "Digest")
+          if [[ $DOCKER_LATEST_TAG == $(docker pull ${{ secrets.DOCKER_USERNAME }}/backend-api | grep "Digest") ]]; then
+            echo "🔴 No changes detected in DockerHub for backend."
+            exit 0
+          else
+            echo "🟢 Changes detected in DockerHub for backend."
+          fi
+
+      - name: 🚀 Sync application with ArgoCD
+        run: |
+          echo "🟢 Synchronizing application with ArgoCD..."
+          argocd app sync frontend --grpc-web
+          argocd app sync backend --grpc-web
+        env:
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+      - name: 🔍 Wait for synchronization to complete
+        run: |
+          echo "🟢 Waiting for ArgoCD synchronization to complete..."
+          argocd app wait frontend
+          argocd app wait backend
+        env:
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+      - name: ✅ Deployment completed
+        run: echo "✅ ArgoCD deployment completed successfully!"

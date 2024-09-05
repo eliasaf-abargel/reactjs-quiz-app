@@ -2,9 +2,16 @@
   margin: 0;
   padding: 0;
 }
+
 body {
   height: 100vh;
   /* background-image: linear-gradient(#D8C7FF, #19006c); */
   background-image: url("/public/quiz.svg");
   font-family: "poppins";
+}
+
+body.dark-mode {
+  background-color: #121212; /* Dark background */
+  color: #ffffff; /* Light text */
+  background-image: none; /* Optionally remove background image in dark mode */
 }
