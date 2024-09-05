@@ -278,5 +278,4 @@ jobs:
 
       - name: 🔍 Show detailed logs
         run: |
-          cat /github/workspace/.github/workflows/*.yml
           cat /github/workspace/kubernetes-manifest/*.yaml
