@@ -1,9 +1,18 @@
-// import React from 'react'
+import React, { useState, useEffect } from "react"; // Import React and necessary hooks
 import Quiz from "./Components/Quiz/Quiz";
 import "./Quiz.css"; // Import only Quiz-related styles
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(false);
+
+  // Toggle dark mode by adding/removing the 'dark-mode' class on the body
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [darkMode]);
 
   return (
     <div className={darkMode ? "dark-mode" : ""}>
