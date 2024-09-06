@@ -5,7 +5,7 @@ on:
     workflows: ["React.js CICD"]
     types:
       - completed
-  workflow_dispatch:  # הפעלה ידנית
+  workflow_dispatch:
 
 jobs:
   argocd-deploy:
@@ -70,7 +70,7 @@ jobs:
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           echo "⏳ Waiting for ArgoCD synchronization to complete..."
-          argocd app wait quiz --server "argocd.binaiq.com" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
+          argocd app wait quiz --server "${{ secrets.ARGOCD_SERVER01 }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
 
       - name: ✅ Deployment completed
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
