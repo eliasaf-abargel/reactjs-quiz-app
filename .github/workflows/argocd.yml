@@ -20,6 +20,18 @@ jobs:
           sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
           rm argocd-linux-amd64
 
+      - name: 🔍 Check ArgoCD Connection
+        run: |
+          ARGOCD_SERVER="${{ secrets.ARGOCD_SERVER }}"
+          echo "Checking connection to ArgoCD server: $ARGOCD_SERVER"
+          if curl -sSf "$ARGOCD_SERVER/api/version" > /dev/null; then
+            echo "✅ Successfully connected to ArgoCD server"
+          else
+            echo "❌ Failed to connect to ArgoCD server"
+            echo "Please check the ARGOCD_SERVER secret and ensure it's set to https://argocd.binaiq.com"
+            exit 1
+          fi
+
       - name: 🔍 Check DockerHub for frontend image changes
         id: check-frontend
         run: |
@@ -50,37 +62,32 @@ jobs:
         if: steps.check-frontend.outputs.frontend_changed == 'true'
         run: |
           echo "🟢 Synchronizing frontend application with ArgoCD..."
-          argocd app sync frontend --grpc-web
-        env:
-          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
-          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+          argocd app sync frontend --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web
+
 
       - name: 🚀 Sync backend application with ArgoCD
         if: steps.check-backend.outputs.backend_changed == 'true'
         run: |
           echo "🟢 Synchronizing backend application with ArgoCD..."
-          argocd app sync backend --grpc-web
-        env:
-          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
-          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+          argocd app sync backend --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web
+
 
       - name: 🔍 Wait for synchronization to complete
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true'
         run: |
           echo "🟢 Waiting for ArgoCD synchronization to complete..."
           if [ "${{ steps.check-frontend.outputs.frontend_changed }}" == "true" ]; then
-            argocd app wait frontend --timeout 300
+            argocd app wait frontend --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300
           fi
           if [ "${{ steps.check-backend.outputs.backend_changed }}" == "true" ]; then
-            argocd app wait backend --timeout 300
+            argocd app wait backend --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300
           fi
-        env:
-          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
-          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
 
       - name: ✅ Deployment completed
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true'
         run: echo "✅ ArgoCD deployment completed successfully!"
+
 
       - name: 🔴 No changes detected
         if: steps.check-frontend.outputs.frontend_changed != 'true' && steps.check-backend.outputs.backend_changed != 'true'
