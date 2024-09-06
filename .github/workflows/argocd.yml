@@ -64,13 +64,13 @@ jobs:
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           echo "🟢 Synchronizing quiz application with ArgoCD..."
-          argocd app sync quiz --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
+          argocd app sync quiz --server "https://argocd.binaiq.com" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
 
       - name: ⏳ Wait for synchronization to complete
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           echo "⏳ Waiting for ArgoCD synchronization to complete..."
-          argocd app wait quiz --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
+          argocd app wait quiz --server "https://argocd.binaiq.com" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
 
       - name: ✅ Deployment completed
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
