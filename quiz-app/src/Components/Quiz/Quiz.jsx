@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import "./Quiz.css";
 
-const Quiz = ({ darkMode }) => { // Added darkMode as a prop
+const Quiz = ({ darkMode }) => {  // קבלת הפרופס darkMode מהקומפוננטה ההורה
   let [index, setIndex] = useState(0);
   let [question, setQuestion] = useState({});
   let [data, setData] = useState([]);
