@@ -60,25 +60,6 @@ jobs:
             echo "🔴 No changes detected in DockerHub for backend image."
           fi
 
-      - name: 🔄 Update Kubernetes manifests if changes detected
-        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true'
-        run: |
-          if [ "${{ steps.check-frontend.outputs.frontend_changed }}" == "true" ]; then
-            sed -i 's|image: ${{ secrets.DOCKER_USERNAME }}/frontend-js:.*|image: ${{ secrets.DOCKER_USERNAME }}/frontend-js:latest|' kubernetes-manifest/frontend.yaml
-          fi
-          if [ "${{ steps.check-backend.outputs.backend_changed }}" == "true" ]; then
-            sed -i 's|image: ${{ secrets.DOCKER_USERNAME }}/backend-api:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend-api:latest|' kubernetes-manifest/backend.yaml
-          fi
-
-      - name: 💾 Commit and push changes if any
-        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add kubernetes-manifest/frontend.yaml kubernetes-manifest/backend.yaml
-          git commit -m "Update image tags to latest versions" || echo "No changes to commit"
-          git push
-
       - name: 🚀 Sync quiz application with ArgoCD
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
