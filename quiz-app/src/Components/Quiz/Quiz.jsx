@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import "./Quiz.css";
 
-const Quiz = ({ darkMode }) => {  // קבלת הפרופס darkMode מהקומפוננטה ההורה
+const Quiz = () => {
   let [index, setIndex] = useState(0);
   let [question, setQuestion] = useState({});
   let [data, setData] = useState([]);
@@ -22,7 +22,8 @@ const Quiz = ({ darkMode }) => {  // קבלת הפרופס darkMode מהקומפ
     const fetchQuestions = async () => {
       if (startQuiz) {
         try {
-          const apiUrl = "http://quizapp.binaiq.com/api/questions";
+          // const apiUrl = import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:3000/api/questions';
+          const apiUrl = "http://quizapp.binaiq.com/api/questions"
           const response = await fetch(apiUrl);
           if (!response.ok) throw new Error("Failed to fetch");
           let questions = await response.json();
@@ -102,7 +103,7 @@ const Quiz = ({ darkMode }) => {  // קבלת הפרופס darkMode מהקומפ
 
   if (!startQuiz) {
     return (
-      <div className={`container ${darkMode ? "dark-mode" : ""}`}> {/* הוספת מחלקת dark-mode אם המצב פעיל */}
+      <div className="container">
         <h1>Quiz App</h1>
         <hr />
         <form onSubmit={handleSubmit}>
@@ -135,7 +136,7 @@ const Quiz = ({ darkMode }) => {  // קבלת הפרופס darkMode מהקומפ
   }
 
   return (
-    <div className={`container ${darkMode ? "dark-mode" : ""}`}> {/* הוספת מחלקת dark-mode אם המצב פעיל */}
+    <div className="container">
       <h1>Quiz App</h1>
       <hr />
       {result ? (
