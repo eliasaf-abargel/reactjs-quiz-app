@@ -5,7 +5,7 @@ on:
     workflows: ["React.js CICD"]
     types:
       - completed
-  workflow_dispatch:  # אפשרות להפעלה ידנית
+  workflow_dispatch:  # הפעלה ידנית
 
 jobs:
   argocd-deploy:
@@ -23,18 +23,19 @@ jobs:
 
       - name: 🔍 Check ArgoCD Connection
         run: |
-          echo "Checking connection to ArgoCD server: ${{ secrets.ARGOCD_SERVER }}"
+          echo "🔍 Checking connection to ArgoCD server: ${{ secrets.ARGOCD_SERVER }}"
           if curl -sSf -k -H "Authorization: Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}" "${{ secrets.ARGOCD_SERVER }}/api/v1/applications" > /dev/null; then
-            echo "✅ Successfully connected to ArgoCD server"
+            echo "✅ Successfully connected to ArgoCD server."
           else
-            echo "❌ Failed to connect to ArgoCD server"
-            echo "Please check the ARGOCD_SERVER and ARGOCD_AUTH_TOKEN secrets"
+            echo "❌ Failed to connect to ArgoCD server."
+            echo "❗ Please check the ARGOCD_SERVER and ARGOCD_AUTH_TOKEN secrets."
             exit 1
           fi
 
       - name: 🔍 Check DockerHub for frontend image changes
         id: check-frontend
         run: |
+          echo "🔍 Checking for frontend image changes..."
           LATEST_DIGEST=$(docker pull ${{ secrets.DOCKER_USERNAME }}/frontend-js:latest 2>/dev/null | grep "Digest: sha256:" | cut -d ':' -f 3)
           CURRENT_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_USERNAME }}/frontend-js:latest 2>/dev/null | cut -d '@' -f 2 || echo '')
           if [ "$LATEST_DIGEST" != "$CURRENT_DIGEST" ]; then
@@ -48,6 +49,7 @@ jobs:
       - name: 🔍 Check DockerHub for backend image changes
         id: check-backend
         run: |
+          echo "🔍 Checking for backend image changes..."
           LATEST_DIGEST=$(docker pull ${{ secrets.DOCKER_USERNAME }}/backend-api:latest 2>/dev/null | grep "Digest: sha256:" | cut -d ':' -f 3)
           CURRENT_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_USERNAME }}/backend-api:latest 2>/dev/null | cut -d '@' -f 2 || echo '')
           if [ "$LATEST_DIGEST" != "$CURRENT_DIGEST" ]; then
@@ -64,10 +66,10 @@ jobs:
           echo "🟢 Synchronizing quiz application with ArgoCD..."
           argocd app sync quiz --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
 
-      - name: 🔍 Wait for synchronization to complete
+      - name: ⏳ Wait for synchronization to complete
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          echo "🟢 Waiting for ArgoCD synchronization to complete..."
+          echo "⏳ Waiting for ArgoCD synchronization to complete..."
           argocd app wait quiz --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
 
       - name: ✅ Deployment completed
