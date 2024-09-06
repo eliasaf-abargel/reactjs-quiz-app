@@ -32,50 +32,61 @@ jobs:
             exit 1
           fi
 
-      - name: 🔍 Check DockerHub for frontend image changes
-        id: check-frontend
+      - name: 🔍 Get current image tags from manifest
+        id: get-current-tags
         run: |
-          echo "🔍 Checking for frontend image changes..."
-          LATEST_DIGEST=$(docker pull ${{ secrets.DOCKER_USERNAME }}/frontend-js:latest 2>/dev/null | grep "Digest: sha256:" | cut -d ':' -f 3)
-          CURRENT_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_USERNAME }}/frontend-js:latest 2>/dev/null | cut -d '@' -f 2 || echo '')
-          if [ "$LATEST_DIGEST" != "$CURRENT_DIGEST" ]; then
-            echo "frontend_changed=true" >> $GITHUB_OUTPUT
-            echo "🟢 Changes detected in DockerHub for frontend image."
-          else
-            echo "frontend_changed=false" >> $GITHUB_OUTPUT
-            echo "🔴 No changes detected in DockerHub for frontend image."
-          fi
+          FRONTEND_CURRENT=$(grep -oP 'image: ${{ secrets.DOCKER_USERNAME }}/frontend-js:\K.*' kubernetes-manifest/frontend-deployment.yaml)
+          BACKEND_CURRENT=$(grep -oP 'image: ${{ secrets.DOCKER_USERNAME }}/backend-api:\K.*' kubernetes-manifest/backend-deployment.yaml)
+          echo "FRONTEND_CURRENT=${FRONTEND_CURRENT}" >> $GITHUB_OUTPUT
+          echo "BACKEND_CURRENT=${BACKEND_CURRENT}" >> $GITHUB_OUTPUT
 
-      - name: 🔍 Check DockerHub for backend image changes
-        id: check-backend
+      - name: 🔍 Get latest image tags from DockerHub
+        id: get-latest-tags
         run: |
-          echo "🔍 Checking for backend image changes..."
-          LATEST_DIGEST=$(docker pull ${{ secrets.DOCKER_USERNAME }}/backend-api:latest 2>/dev/null | grep "Digest: sha256:" | cut -d ':' -f 3)
-          CURRENT_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_USERNAME }}/backend-api:latest 2>/dev/null | cut -d '@' -f 2 || echo '')
-          if [ "$LATEST_DIGEST" != "$CURRENT_DIGEST" ]; then
-            echo "backend_changed=true" >> $GITHUB_OUTPUT
-            echo "🟢 Changes detected in DockerHub for backend image."
-          else
-            echo "backend_changed=false" >> $GITHUB_OUTPUT
-            echo "🔴 No changes detected in DockerHub for backend image."
+          FRONTEND_LATEST=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_USERNAME }}/frontend-js/tags/" | jq -r '.results[0].name')
+          BACKEND_LATEST=$(curl -s "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_USERNAME }}/backend-api/tags/" | jq -r '.results[0].name')
+          echo "FRONTEND_LATEST=${FRONTEND_LATEST}" >> $GITHUB_OUTPUT
+          echo "BACKEND_LATEST=${BACKEND_LATEST}" >> $GITHUB_OUTPUT
+
+      - name: 🔄 Update Kubernetes manifests if tags differ
+        id: update-manifests
+        run: |
+          UPDATED=false
+          if [ "${{ steps.get-current-tags.outputs.FRONTEND_CURRENT }}" != "${{ steps.get-latest-tags.outputs.FRONTEND_LATEST }}" ]; then
+            sed -i 's|image: ${{ secrets.DOCKER_USERNAME }}/frontend-js:.*|image: ${{ secrets.DOCKER_USERNAME }}/frontend-js:${{ steps.get-latest-tags.outputs.FRONTEND_LATEST }}|' kubernetes-manifest/frontend-deployment.yaml
+            UPDATED=true
           fi
+          if [ "${{ steps.get-current-tags.outputs.BACKEND_CURRENT }}" != "${{ steps.get-latest-tags.outputs.BACKEND_LATEST }}" ]; then
+            sed -i 's|image: ${{ secrets.DOCKER_USERNAME }}/backend-api:.*|image: ${{ secrets.DOCKER_USERNAME }}/backend-api:${{ steps.get-latest-tags.outputs.BACKEND_LATEST }}|' kubernetes-manifest/backend-deployment.yaml
+            UPDATED=true
+          fi
+          echo "UPDATED=${UPDATED}" >> $GITHUB_OUTPUT
+
+      - name: 💾 Commit and push changes
+        if: steps.update-manifests.outputs.UPDATED == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add kubernetes-manifest/*.yaml
+          git commit -m "Update image tags to latest versions" || echo "No changes to commit"
+          git push
 
       - name: 🚀 Sync quiz application with ArgoCD
-        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.update-manifests.outputs.UPDATED == 'true'
         run: |
           echo "🟢 Synchronizing quiz application with ArgoCD..."
           argocd app sync quiz --server "argocd.binaiq.com" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
 
       - name: ⏳ Wait for synchronization to complete
-        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.update-manifests.outputs.UPDATED == 'true'
         run: |
           echo "⏳ Waiting for ArgoCD synchronization to complete..."
           argocd app wait quiz --server "${{ secrets.ARGOCD_SERVER01 }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
 
       - name: ✅ Deployment completed
-        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.update-manifests.outputs.UPDATED == 'true'
         run: echo "✅ ArgoCD deployment completed successfully!"
 
       - name: 🔴 No changes detected
-        if: steps.check-frontend.outputs.frontend_changed != 'true' && steps.check-backend.outputs.backend_changed != 'true' && github.event_name != 'workflow_dispatch'
-        run: echo "🔴 No changes detected in frontend or backend images. Skipping ArgoCD sync."
+        if: steps.update-manifests.outputs.UPDATED != 'true'
+        run: echo "🔴 No changes detected in image tags. Skipping ArgoCD sync."
