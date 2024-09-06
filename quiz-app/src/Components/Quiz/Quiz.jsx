@@ -104,11 +104,11 @@ const Quiz = () => {
   if (!startQuiz) {
     return (
       <div className="container">
-        <h1>Quiz App</h1>
+        <h1>Quiz-App</h1>
         <hr />
         <form onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="name">Name1:</label>
+            <label htmlFor="name">Name:</label>
             <input
               type="text"
               id="name"
