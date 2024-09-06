@@ -5,11 +5,12 @@ on:
     workflows: ["React.js CICD"]
     types:
       - completed
+  workflow_dispatch:  # אפשרות להפעלה ידנית
 
 jobs:
   argocd-deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: 🛠️ Check-out git repository
         uses: actions/checkout@v4
@@ -20,10 +21,9 @@ jobs:
           sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
           rm argocd-linux-amd64
 
-
       - name: 🔍 Check ArgoCD Connection
         run: |
-          ARGOCD_SERVER="${{ secrets.ARGOCD_SERVER }}"
+          ARGOCD_SERVER=$(echo "${{ secrets.ARGOCD_SERVER }}" | sed 's|^https://https://|https://|')
           ARGOCD_AUTH_TOKEN="${{ secrets.ARGOCD_AUTH_TOKEN }}"
           echo "Checking connection to ArgoCD server: $ARGOCD_SERVER"
           if curl -sSf -k -H "Authorization: Bearer $ARGOCD_AUTH_TOKEN" "$ARGOCD_SERVER/api/v1/applications" > /dev/null; then
@@ -41,10 +41,10 @@ jobs:
           CURRENT_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_USERNAME }}/frontend-js:latest 2>/dev/null | cut -d '@' -f 2 || echo '')
           if [ "$LATEST_DIGEST" != "$CURRENT_DIGEST" ]; then
             echo "frontend_changed=true" >> $GITHUB_OUTPUT
-            echo "🟢 Changes detected in DockerHub for frontend."
+            echo "🟢 Changes detected in DockerHub for frontend image."
           else
             echo "frontend_changed=false" >> $GITHUB_OUTPUT
-            echo "🔴 No changes detected in DockerHub for frontend."
+            echo "🔴 No changes detected in DockerHub for frontend image."
           fi
 
       - name: 🔍 Check DockerHub for backend image changes
@@ -54,42 +54,30 @@ jobs:
           CURRENT_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ secrets.DOCKER_USERNAME }}/backend-api:latest 2>/dev/null | cut -d '@' -f 2 || echo '')
           if [ "$LATEST_DIGEST" != "$CURRENT_DIGEST" ]; then
             echo "backend_changed=true" >> $GITHUB_OUTPUT
-            echo "🟢 Changes detected in DockerHub for backend."
+            echo "🟢 Changes detected in DockerHub for backend image."
           else
             echo "backend_changed=false" >> $GITHUB_OUTPUT
-            echo "🔴 No changes detected in DockerHub for backend."
+            echo "🔴 No changes detected in DockerHub for backend image."
           fi
 
-
-      - name: 🚀 Sync frontend application with ArgoCD
-        if: steps.check-frontend.outputs.frontend_changed == 'true'
+      - name: 🚀 Sync quiz application with ArgoCD
+        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          echo "🟢 Synchronizing frontend application with ArgoCD..."
-          argocd app sync frontend --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
-
-
-      - name: 🚀 Sync backend application with ArgoCD
-        if: steps.check-backend.outputs.backend_changed == 'true'
-        run: |
-          echo "🟢 Synchronizing backend application with ArgoCD..."
-          argocd app sync backend --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
-
+          echo "🟢 Synchronizing quiz application with ArgoCD..."
+          ARGOCD_SERVER=$(echo "${{ secrets.ARGOCD_SERVER }}" | sed 's|^https://https://|https://|')
+          argocd app sync quiz --server "$ARGOCD_SERVER" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
 
       - name: 🔍 Wait for synchronization to complete
-        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true'
+        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           echo "🟢 Waiting for ArgoCD synchronization to complete..."
-          if [ "${{ steps.check-frontend.outputs.frontend_changed }}" == "true" ]; then
-            argocd app wait frontend --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
-          fi
-          if [ "${{ steps.check-backend.outputs.backend_changed }}" == "true" ]; then
-            argocd app wait backend --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
-          fi
+          ARGOCD_SERVER=$(echo "${{ secrets.ARGOCD_SERVER }}" | sed 's|^https://https://|https://|')
+          argocd app wait quiz --server "$ARGOCD_SERVER" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
 
       - name: ✅ Deployment completed
-        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true'
+        if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: echo "✅ ArgoCD deployment completed successfully!"
 
       - name: 🔴 No changes detected
-        if: steps.check-frontend.outputs.frontend_changed != 'true' && steps.check-backend.outputs.backend_changed != 'true'
-        run: echo "🔴 No changes detected in either frontend or backend. Skipping ArgoCD sync."
+        if: steps.check-frontend.outputs.frontend_changed != 'true' && steps.check-backend.outputs.backend_changed != 'true' && github.event_name != 'workflow_dispatch'
+        run: echo "🔴 No changes detected in frontend or backend images. Skipping ArgoCD sync."
