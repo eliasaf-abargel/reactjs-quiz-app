@@ -23,10 +23,8 @@ jobs:
 
       - name: 🔍 Check ArgoCD Connection
         run: |
-          ARGOCD_SERVER=$(echo "${{ secrets.ARGOCD_SERVER }}" | sed 's|^https://https://|https://|')
-          ARGOCD_AUTH_TOKEN="${{ secrets.ARGOCD_AUTH_TOKEN }}"
-          echo "Checking connection to ArgoCD server: $ARGOCD_SERVER"
-          if curl -sSf -k -H "Authorization: Bearer $ARGOCD_AUTH_TOKEN" "$ARGOCD_SERVER/api/v1/applications" > /dev/null; then
+          echo "Checking connection to ArgoCD server: ${{ secrets.ARGOCD_SERVER }}"
+          if curl -sSf -k -H "Authorization: Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}" "${{ secrets.ARGOCD_SERVER }}/api/v1/applications" > /dev/null; then
             echo "✅ Successfully connected to ArgoCD server"
           else
             echo "❌ Failed to connect to ArgoCD server"
@@ -64,15 +62,13 @@ jobs:
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           echo "🟢 Synchronizing quiz application with ArgoCD..."
-          ARGOCD_SERVER=$(echo "${{ secrets.ARGOCD_SERVER }}" | sed 's|^https://https://|https://|')
-          argocd app sync quiz --server "$ARGOCD_SERVER" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
+          argocd app sync quiz --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --grpc-web --insecure
 
       - name: 🔍 Wait for synchronization to complete
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           echo "🟢 Waiting for ArgoCD synchronization to complete..."
-          ARGOCD_SERVER=$(echo "${{ secrets.ARGOCD_SERVER }}" | sed 's|^https://https://|https://|')
-          argocd app wait quiz --server "$ARGOCD_SERVER" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
+          argocd app wait quiz --server "${{ secrets.ARGOCD_SERVER }}" --auth-token "${{ secrets.ARGOCD_AUTH_TOKEN }}" --timeout 300 --insecure
 
       - name: ✅ Deployment completed
         if: steps.check-frontend.outputs.frontend_changed == 'true' || steps.check-backend.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch'
