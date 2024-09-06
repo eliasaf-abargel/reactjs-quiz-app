@@ -108,7 +108,7 @@ const Quiz = () => {
         <hr />
         <form onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="name">Name:</label>
+            <label htmlFor="name">Name1:</label>
             <input
               type="text"
               id="name"
