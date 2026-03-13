@@ -1,4 +1,4 @@
-name: "reactjs-quiz-app CI (backend)"
+name: "reactjs-quiz-app CI (quiz-app)"
 
 on:
   push:
@@ -52,13 +52,13 @@ env:
   IMAGE_REPO: sample-docker-local
   RELEASE_IMAGE_REPO: ${{ vars.RELEASE_IMAGE_REPO || secrets.RELEASE_IMAGE_REPO || vars.RELEASE_DOCKER_REPO || secrets.RELEASE_DOCKER_REPO || 'docker-releases-local' }}
   IMAGE_NAME: reactjs-quiz-app
-  IMAGE_SERVICE_PATH: backend
+  IMAGE_SERVICE_PATH: quiz-app
   XRAY_POLICY: audit-only
   PROJECT_KEY: ${{ vars.PROJECT_KEY || secrets.PROJECT_KEY || 'sample' }}
   DOCKERFILE_PATH: Dockerfile
-  WORKING_DIR: backend
+  WORKING_DIR: quiz-app
   GIT_BRANCH: codex-multisvc-1773395440114
-  WORKFLOW_TARGET: backend
+  WORKFLOW_TARGET: quiz-app
 
 jobs:
   # ── PR validation (build only, no push) ────────────────────────────────────
@@ -118,7 +118,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           jf docker build \
-            --tag ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME }}/development/backend:pr-${{ github.event.pull_request.number }} \
+            --tag ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME }}/development/quiz-app:pr-${{ github.event.pull_request.number }} \
             --label "org.opencontainers.image.title=${{ github.event.repository.name }}" \
             --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
             --label "org.opencontainers.image.revision=${{ github.sha }}" \
